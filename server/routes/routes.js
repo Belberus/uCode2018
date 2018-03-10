@@ -4,6 +4,23 @@ var xmlparser = require('express-xml-bodyparser');
 var appRouter = function(router, mongo, app, database) {
 
     /**
+     * Return info user if the user is register
+     */
+    router.get("/isRegistered/:id", function (req, res) {
+        console.log("isRegistered");
+
+        mongo.users.find({idGoogle: req.params.id}, function (err, data) {
+            if (err) {
+                response = {"status": 500, "message": "Error fetching data"};
+            } else {
+                console.log(data);
+                response = {"status": 200, "message": data};
+            }
+            res.status(response.status).json(response.message);
+        });
+    }),
+
+    /**
      * Save new user in database
      */
     router.post("/signIn", function (req, res) {
@@ -41,6 +58,9 @@ var appRouter = function(router, mongo, app, database) {
         db.idUser = req.body.idUser;
         db.creationDate = Date.now();
         db.points = req.body.points;
+        db.distance = req.body.distance;
+        db.time = req.body.time;
+        db.speed = req.body.distance/req.body.time; //
 
         db.save(function (err, data) {
             if (err) {
@@ -48,11 +68,10 @@ var appRouter = function(router, mongo, app, database) {
                 res.status(500).json(response);
             } else {
                 //update kms in users and teams
-                database.updateKMS(mongo, req.body.idUser, req.body.points, function (response) {
+                database.updateKMS(mongo, req.body.idUser, req.body.distance, function (response) {
                     console.log(response);
                     res.status(200).json(response)
                 });
-               // response = {"message": data._id};
             }
         });
 
@@ -65,8 +84,7 @@ var appRouter = function(router, mongo, app, database) {
     router.get("/getRoute/:id", function (req, res) {
         console.log("getting route");
 
-        console.log(req.params.id);
-        mongo.routes.find({idUser: req.params.id}, function (err, data) {
+                mongo.routes.find({idUser: req.params.id}, function (err, data) {
             if (err) {
                 response = {"status": 500, "message": "Error fetching data"};
             } else {
@@ -92,6 +110,25 @@ var appRouter = function(router, mongo, app, database) {
             console.log(data);
             res.status(response.status).json(response.message);
         });
+    }),
+
+    /**
+     * Get recommendations to user
+     */
+    router.get("/getRecommendations/:id", function (req, res) {
+        console.log("getting recommendations");
+
+        //get last route from user
+        database.getLastRoute(mongo, req.params.id, function (response) {
+            console.log(response.message[0].speed); // get speed
+
+            //search recommendation
+            database.searchRecommendation(mongo, response.message[0].speed, function (response) {
+                console.log(response.message[0]);
+                res.status(200).json(response)
+            })
+        });
+
     })
 };
 
