@@ -59,23 +59,40 @@ var appRouter = function(router, mongo, app, database) {
 
     }),
 
-        /**
-         * Save new route in database
-         */
-        router.get("/getRoute/:id", function (req, res) {
-            console.log("getting route");
+    /**
+     * Get routes using id route
+     */
+    router.get("/getRoute/:id", function (req, res) {
+        console.log("getting route");
 
-            console.log(req.params.id);
-            mongo.routes.find({idUser: req.params.id}, function (err, data) {
-                if (err) {
-                    response = {"status": 500, "message": "Error fetching data"};
-                } else {
-                    response = {"status": 200, "message": data};
-                }
+        console.log(req.params.id);
+        mongo.routes.find({idUser: req.params.id}, function (err, data) {
+            if (err) {
+                response = {"status": 500, "message": "Error fetching data"};
+            } else {
+                response = {"status": 200, "message": data};
+            }
+            res.status(response.status).json(response.message);
+        });
+    }),
+
+    /**
+     * Get points of all teams
+     */
+    router.get("/getPoints", function (req, res) {
+        console.log("getting points");
+
+        mongo.teams.find({}, function (err, data) {
+            if (err) {
+                response = {"status": 500, "message": "Error fetching data"};
+            } else {
                 console.log(data);
-                res.status(response.status).json(response.message);
-            });
-        })
+                response = {"status": 200, "message": data};
+            }
+            console.log(data);
+            res.status(response.status).json(response.message);
+        });
+    })
 };
 
     module.exports = appRouter;

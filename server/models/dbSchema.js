@@ -24,7 +24,8 @@ var usersSchema = mongoose.Schema({
 var routesSchema = mongoose.Schema({
     idUser: objectId,
     creationDate: Date,
-    points: [{lat: Number, lon:Number, dist:Number}]
+    points: [{lat: Number, lon:Number, dist:Number}],
+    speed: Number
 });
 
 var teamSchema = mongoose.Schema({

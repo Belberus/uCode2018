@@ -20,7 +20,7 @@ var updateKMS = function(mongo, idUser, points, callback){
 
     mongo.users.find({_id: idUser}, function (err, user) {
         if (err) {
-            response = {"status": 500, "res": {"message": "Error searching user"}};
+            response = {"status": 500, "res": {"message": "Error updating points"}};
         } else {
 
             var kmsTotales = 0;
@@ -31,11 +31,11 @@ var updateKMS = function(mongo, idUser, points, callback){
             //updates points of teams and users
             mongo.teams.update({"name": user[0].team},{$inc:{"kms": kmsTotales}}, function (err) {
                     if (err) {
-                        response = {"status": 500, "res": {"message": "Error searching user"}};
+                        response = {"status": 500, "res": {"message": "Error updating points"}};
                     } else {
                         mongo.users.update({_id: idUser},{$inc:{"kms": kmsTotales}},function (err) {
                             if (err) {
-                                response = {"status": 500, "res": {"message": "Error searching user"}};
+                                response = {"status": 500, "res": {"message": "Error updating points"}};
                             } else {
                                 response = {"status": 200, "res": {"message": user}};
                             }}
@@ -43,24 +43,9 @@ var updateKMS = function(mongo, idUser, points, callback){
                     }
                 }
             );
-
-
         }
         callback(response);
     });
-};
-
-//latitude and longitude to km
-var distance = function(lat1, lon1, lat2, lon2, callback){
-    var response = {};
-
-    var latTotal = lat1 - lat2;
-    var lonTotal = lon1 - lon2;
-
-    var degTotal = math.sqrt(latTotal*latTotal+lonTotal*lonTotal);
-
-    callback(response);
-
 };
 
 module.exports = {
