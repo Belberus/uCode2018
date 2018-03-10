@@ -16,6 +16,7 @@ var usersSchema = mongoose.Schema({
     token: String,
     team: String,
     urlPhoto: String,
+    kms: Number,
     creationDate: Date   //fecha de creacion
 //    isAdmin: Boolean,
 });
@@ -23,8 +24,14 @@ var usersSchema = mongoose.Schema({
 var routesSchema = mongoose.Schema({
     idUser: objectId,
     creationDate: Date,
-    pois: [{poi: String, location: {lat: Number, lng:Number}}]
+    points: [{lat: Number, lon:Number, dist:Number}]
 });
+
+var teamSchema = mongoose.Schema({
+    name: String,
+    kms: Number
+});
+
 
 //create index for searching pois by keywords or name
 //POIsSchema.index({keywords: "text", name: "text", city: "text", country: "text"});
@@ -33,9 +40,11 @@ var routesSchema = mongoose.Schema({
 //Export all collections
 var users = mongoose.model('users',usersSchema);
 var routes = mongoose.model('routes',routesSchema);
+var teams = mongoose.model('teams',teamSchema);
 
 
 module.exports = {
     users: users,
-    routes: routes
+    routes: routes,
+    teams: teams
 };

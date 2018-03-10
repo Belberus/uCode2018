@@ -29,8 +29,53 @@ var appRouter = function(router, mongo, app, database) {
             }
             console.log(response);
         });
-    })
-};
+    }),
 
+    /**
+     * Save new route in database
+     */
+    router.post("/postRoute", function (req, res) {
+        console.log("posting route");
+        var db = new mongo.routes;
+
+        db.idUser = req.body.idUser;
+        db.creationDate = Date.now();
+        db.points = req.body.points;
+
+        db.save(function (err, data) {
+            if (err) {
+                response = {"message": "Error adding route"};
+                res.status(500).json(response);
+            } else {
+                //update kms in users and teams
+                database.updateKMS(mongo, req.body.idUser, req.body.points, function (response) {
+                    console.log(response);
+                    res.status(200).json(response)
+                });
+               // response = {"message": data._id};
+            }
+        });
+
+
+    }),
+
+        /**
+         * Save new route in database
+         */
+        router.get("/getRoute/:id", function (req, res) {
+            console.log("getting route");
+
+            console.log(req.params.id);
+            mongo.routes.find({idUser: req.params.id}, function (err, data) {
+                if (err) {
+                    response = {"status": 500, "message": "Error fetching data"};
+                } else {
+                    response = {"status": 200, "message": data};
+                }
+                console.log(data);
+                res.status(response.status).json(response.message);
+            });
+        })
+};
 
     module.exports = appRouter;
