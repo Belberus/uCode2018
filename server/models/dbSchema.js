@@ -22,15 +22,17 @@ var usersSchema = mongoose.Schema({
 });
 
 var routesSchema = mongoose.Schema({
-    idUser: objectId, //idUser of mongo
+    idUser: String, //idUser of google
     creationDate: Date,
-    points: [{lat: Number, lon:Number, dist:Number}],
-    distance: Number,
-    time: Number,
-    speed: Number
+    points: [{lat: Number, lng:Number}],
+    distance: Number,   //in km
+    time: Number,       //in h
+    speed: Number       //in km/h
 });
 
+//1 tech, 2 control, 3 power
 var teamSchema = mongoose.Schema({
+    idTeam: Number,
     name: String,
     kms: Number
 });

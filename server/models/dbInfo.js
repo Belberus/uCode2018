@@ -24,7 +24,7 @@ var updateKMS = function(mongo, idUser, distance, callback){
         } else {
 
             //updates points of teams and users
-            mongo.teams.update({"name": user[0].team},{$incr:{"distance": distance}}, function (err) {
+            mongo.teams.update({"idTeam": user[0].team},{$incr:{"distance": distance}}, function (err) {
                     if (err) {
                         response = {"status": 500, "res": {"message": "Error updating points"}};
                     } else {

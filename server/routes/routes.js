@@ -8,14 +8,17 @@ var appRouter = function(router, mongo, app, database) {
      */
     router.get("/isRegistered/:id", function (req, res) {
         console.log("isRegistered");
+        var res
 
         mongo.users.find({idGoogle: req.params.id}, function (err, data) {
             if (err) {
                 response = {"status": 500, "message": "Error fetching data"};
+            } else if (data.length == 0) {
+                response = {"status": 404, "message": "User not found"};
             } else {
-                console.log(data);
                 response = {"status": 200, "message": data};
             }
+            console.log(response);
             res.status(response.status).json(response.message);
         });
     }),
@@ -25,15 +28,18 @@ var appRouter = function(router, mongo, app, database) {
      */
     router.post("/signIn", function (req, res) {
         console.log("signIn user");
+        var r = JSON.parse(Object.keys(req.body)[0]);
+        console.log(JSON.parse(Object.keys(req.body)[0]));
+
         var db = new mongo.users;
 
-        db.name = req.body.name;
-        db.email = req.body.email;
-        db.lastName  = req.body.lastName;
-        db.idGoogle = req.body.idGoogle;
-        db.token = req.body.token;
-        db.team = req.body.team;
-        db.urlPhoto = req.body.urlPhoto;
+        db.name = r.name;
+        db.email = r.email;
+        db.lastName  = r.lastName;
+        db.idGoogle = r.idGoogle;
+        db.token = r.token;
+        db.team = r.team;
+        db.urlPhoto = r.urlPhoto;
         db.creationDate = Date.now();
 
         db.save(function (err, data) {
@@ -53,14 +59,32 @@ var appRouter = function(router, mongo, app, database) {
      */
     router.post("/postRoute", function (req, res) {
         console.log("posting route");
+        var r = JSON.parse(Object.keys(req.body)[0]);
+        console.log(JSON.parse(Object.keys(req.body)[0]));
+
+        var l = Object.keys(r.points).length;
+
+        // console.log(Object.keys(r.points));
+        // console.log(l);
+        // console.log(Object.keys(r.points)[0].length);
+
+
+        var p = [];
+        var i ;
+        for ( i = 0; i < r.points.length; i++) {
+            console.log(r.points[i]);
+            p[i]={ "lat": r.points[i].lat, "lng": r.points[i].lng}
+        }
+        console.log(p);
+
         var db = new mongo.routes;
 
-        db.idUser = req.body.idUser;
+        db.idUser = r.idUser; //google id
         db.creationDate = Date.now();
-        db.points = req.body.points;
-        db.distance = req.body.distance;
-        db.time = req.body.time;
-        db.speed = req.body.distance/req.body.time; //
+        db.points = p;
+        db.distance = r.distance/1000;  //m to km
+        db.time = r.time/3600;          //s to h
+        db.speed = (r.distance/1000)/(r.time/3600);
 
         db.save(function (err, data) {
             if (err) {
@@ -68,7 +92,7 @@ var appRouter = function(router, mongo, app, database) {
                 res.status(500).json(response);
             } else {
                 //update kms in users and teams
-                database.updateKMS(mongo, req.body.idUser, req.body.distance, function (response) {
+                database.updateKMS(mongo, r.idUser, r.distance, function (response) {
                     console.log(response);
                     res.status(200).json(response)
                 });
